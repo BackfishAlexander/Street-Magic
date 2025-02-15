@@ -219,49 +219,53 @@ export default function InfiniteBoard() {
         }}
       >
         {cards.map(card => (
-          <div
-            key={card.id}
-            className="absolute card select-none"
-            style={{
-              transform: `translate3d(${card.x}px, ${card.y}px, 0)`,
-              width: `${card.width}px`,
-              height: `${card.height}px`,
-              zIndex: card.zIndex,
-            }}
-            onMouseDown={(e) => handleCardMouseDown(card.id, e)}
-          >
-            <div className="h-full w-full bg-white rounded-sm shadow-xl transition-all duration-200 hover:shadow-2xl">
-              <div 
-                className="h-full w-full p-8 relative"
-                style={{
-                  backgroundImage: `
-                    linear-gradient(to right, #${card.lineColor} 0%, #${card.lineColor} 2%, transparent 2%),
-                    repeating-linear-gradient(
-                      to bottom,
-                      #3b82f6 0px,
-                      #3b82f6 1px,
-                      transparent 1px,
-                      transparent ${LINE_SPACING}px
-                    )
-                  `,
-                  backgroundSize: `100% 40px, 100% ${LINE_SPACING}px`,
-                  backgroundPosition: '0 40px',
+        <div
+          key={card.id}
+          className="absolute card select-none"
+          style={{
+            transform: `translate3d(${card.x}px, ${card.y}px, 0)`,
+            width: `${card.width}px`,
+            height: `${card.height}px`,
+            zIndex: card.zIndex,
+          }}
+          onMouseDown={(e) => handleCardMouseDown(card.id, e)}
+        >
+          <div className="h-full w-full bg-white rounded-sm shadow-xl transition-all duration-200 hover:shadow-2xl">
+            {/* Added letter container here */}
+            <div className="absolute left-2 top-2 text-6xl font-bold text-gray-800 z-10">
+              {card.cardType}
+            </div>
+            <div 
+              className="h-full w-full p-8 relative"
+              style={{
+                backgroundImage: `
+                  linear-gradient(to right, #${card.lineColor} 0%, #${card.lineColor} 2%, transparent 2%),
+                  repeating-linear-gradient(
+                    to bottom,
+                    #3b82f6 0px,
+                    #3b82f6 1px,
+                    transparent 1px,
+                    transparent ${LINE_SPACING}px
+                  )
+                `,
+                backgroundSize: `100% 40px, 100% ${LINE_SPACING}px`,
+                backgroundPosition: '0 40px',
+              }}
+            >
+              <textarea
+                className="w-full h-full bg-transparent resize-none outline-none font-mono text-gray-800 text-lg pl-12 pt-10 leading-7"
+                style={{ 
+                  background: 'transparent',
+                  lineHeight: `${LINE_SPACING}px`,
                 }}
-              >
-                <textarea
-                  className="w-full h-full bg-transparent resize-none outline-none font-mono text-gray-800 text-lg pl-12 pt-10 leading-7"
-                  style={{ 
-                    background: 'transparent',
-                    lineHeight: `${LINE_SPACING}px`,
-                  }}
-                  defaultValue={card.content}
-                  onChange={(e) => updateCardHeight(card.id, e.target.value)}
-                  placeholder="Start typing..."
-                />
-              </div>
+                defaultValue={card.content}
+                onChange={(e) => updateCardHeight(card.id, e.target.value)}
+                placeholder="Start typing..."
+              />
             </div>
           </div>
-        ))}
+        </div>
+      ))}
       </div>
 
       {/* Global Styles */}
