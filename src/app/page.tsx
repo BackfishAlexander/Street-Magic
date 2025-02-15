@@ -64,17 +64,13 @@ export default function InfiniteBoard() {
     return newCard;
   };
 
-  // Dynamic textarea height
-  const updateCardHeight = useDebouncedCallback((id: string, content: string) => {
-    const lines = content.split('\n').length || 1;
-    const newHeight = Math.max(MIN_CARD_HEIGHT, lines * LINE_HEIGHT + 60);
-    
+  const updateCardHeight = useDebouncedCallback((id: string, content: string, newHeight: number) => {
     setCards(prev => prev.map(card => {
       if (card.id === id) {
         return {
           ...card,
           height: newHeight,
-          lines: Math.floor((newHeight - 60) / LINE_SPACING),
+          lines: Math.floor((newHeight - 40) / LINE_SPACING), // Adjusted calculation
           content,
         };
       }
@@ -163,6 +159,8 @@ export default function InfiniteBoard() {
     setLastMousePos({ x: e.clientX, y: e.clientY });
   };
 
+  
+
   // Effects
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
@@ -219,77 +217,68 @@ export default function InfiniteBoard() {
         }}
       >
         {cards.map(card => (
-        <div
-          key={card.id}
-          className="absolute card select-none"
-          style={{
-            transform: `translate3d(${card.x}px, ${card.y}px, 0)`,
-            width: `${card.width}px`,
-            height: `${card.height}px`,
-            zIndex: card.zIndex,
-          }}
-          onMouseDown={(e) => handleCardMouseDown(card.id, e)}
-        >
-          <div className="h-full w-full bg-white rounded-sm shadow-xl transition-all duration-200 hover:shadow-2xl">
-            {/* Added letter container here */}
-            <div className="absolute left-2 top-2 text-6xl font-bold text-gray-800 z-10">
-              {card.cardType}
-            </div>
-            <div 
-              className="h-full w-full p-8 relative"
-              style={{
-                backgroundImage: `
-                  linear-gradient(to right, #${card.lineColor} 0%, #${card.lineColor} 2%, transparent 2%),
-                  repeating-linear-gradient(
-                    to bottom,
-                    #3b82f6 0px,
-                    #3b82f6 1px,
-                    transparent 1px,
-                    transparent ${LINE_SPACING}px
-                  )
-                `,
-                backgroundSize: `100% 40px, 100% ${LINE_SPACING}px`,
-                backgroundPosition: '0 40px',
-              }}
-            >
-              <textarea
-                className="w-full h-full bg-transparent resize-none outline-none font-mono text-gray-800 text-lg pl-12 pt-10 leading-7"
-                style={{ 
-                  background: 'transparent',
-                  lineHeight: `${LINE_SPACING}px`,
+          <div
+            key={card.id}
+            className="absolute card select-none"
+            style={{
+              transform: `translate3d(${card.x}px, ${card.y}px, 0)`,
+              width: `${card.width}px`,
+              height: `${card.height}px`,
+              zIndex: card.zIndex,
+            }}
+            onMouseDown={(e) => handleCardMouseDown(card.id, e)}
+          >
+            <div className="h-full w-full bg-white rounded-sm shadow-xl transition-all duration-200 hover:shadow-2xl">
+              <div className="absolute left-2 top-2 text-6xl font-bold text-gray-800 z-10">
+                {card.cardType}
+              </div>
+              <div 
+                className="h-full w-full p-8 relative"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(to right, #${card.lineColor} 0%, #${card.lineColor} 2%, transparent 2%),
+                    repeating-linear-gradient(
+                      to bottom,
+                      #3b82f6 0px,
+                      #3b82f6 1px,
+                      transparent 1px,
+                      transparent ${LINE_SPACING}px
+                    )
+                  `,
+                  backgroundSize: `100% 40px, 100% ${LINE_SPACING}px`,
+                  backgroundPosition: '0 40px',
                 }}
-                defaultValue={card.content}
-                onChange={(e) => updateCardHeight(card.id, e.target.value)}
-                placeholder="Start typing..."
-              />
+              >
+                <textarea
+                  className="w-full h-full bg-transparent resize-none outline-none font-mono text-gray-800 text-lg pl-12 pt-10 leading-7"
+                  style={{ 
+                    background: 'transparent',
+                    lineHeight: `${LINE_SPACING}px`,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                  defaultValue={card.content}
+                  onChange={(e) => {
+                    const textarea = e.target;
+                    const parentPadding = 64; // 32px top + 32px bottom from p-8
+                    const newHeight = Math.max(MIN_CARD_HEIGHT, textarea.scrollHeight + parentPadding);
+                    updateCardHeight(card.id, e.target.value, newHeight);
+                  }}
+                  placeholder="Start typing..."
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
       </div>
 
-      {/* Global Styles */}
+      {/* Modified Global Styles */}
       <style jsx global>{`
         .card {
           transition: transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
 
         textarea {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-        }
-
-        textarea::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        textarea::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        textarea::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.1);
-          border-radius: 4px;
+          overflow: hidden !important;
         }
 
         textarea:focus {
